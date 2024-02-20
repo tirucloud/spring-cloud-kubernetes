@@ -46,45 +46,5 @@ pipeline {
 	            }
 	        }
 	    }
-	 //    stage("Docker CleanUP") {
-	 //        when {
-		// 		expression { params.action == 'create' }
-		// 	}
-	 //        steps {
-	 //            dockerCleanup ( "${params.ImageName}", "${params.docker_repo}" )
-		// 	}
-		// }
-			    stage("Ansible Setup") {
-	        when {
-				expression { params.action == 'create' }
-			}
-	        steps {
-	            sh 'ansible-playbook ${WORKSPACE}/kubernetes-configmap-reload/server_setup.yml'
-			}
-		}
-	    stage("Create deployment") {
-			when {
-				expression { params.action == 'create' }
-			}
-	        steps {
-	            sh 'echo ${WORKSPACE}'
-	            sh 'kubectl create -f ${WORKSPACE}/kubernetes-configmap-reload/kubernetes-configmap.yml'
-	        }
-	    }
-	    stage ("wait_for_pods"){
-	    steps{
-              
-                sh 'sleep 300'
-             
-	    }
-	    }
-		stage("rollback deployment") {
-	        steps {	            	         	           
-	              sh """
-	                   kubectl delete deploy ${params.AppName}
-					    kubectl delete svc ${params.AppName}
-				  """	       
-	        }
-	    }
     }
 }
